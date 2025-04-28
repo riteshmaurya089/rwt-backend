@@ -1,8 +1,12 @@
 const express = require('express');
-const connectDB = require('./config/db');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
+const dotenv = require('dotenv');
+const connectDB = require('./config/db');
+
+// __dirname is already available in CommonJS
+
+dotenv.config();
 
 // Connect to database
 connectDB();
@@ -14,16 +18,24 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/users', require('./routes/users'));
-app.use('/api/tasks', require('./routes/tasks'));
-app.use('/api/hours', require('./routes/hours'));
-app.use('/api/reports', require('./routes/reports'));
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const taskRoutes = require('./routes/tasks');
+const hourRoutes = require('./routes/hours');
+const reportRoutes = require('./routes/reports');
+
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/hours', hourRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
-  app.get('*', (req, res) => res.sendFile(path.resolve(__dirname, '../client', 'build', 'index.html')));
+  app.get('*', (req, res) =>
+    res.sendFile(path.resolve(__dirname, '../client', 'build', 'index.html'))
+  );
 }
 
 const PORT = process.env.PORT || 5000;
